@@ -1,0 +1,81 @@
+---
+title: "Descriptive stats for the scannair-fd population: clinical variables."
+output: html_notebook
+---
+
+
+
+Get the data.
+```{r}
+raw_data <- read.csv2("C:/Users/csuehs/Dropbox/SCANN'AIR_fractal_dimension/FD_data/Expi.csv")
+raw_data2 <- read.csv("C:/Users/csuehs/Dropbox/SCANN'AIR_princeps/data-verification/Data_scannair_NA_corrections_isaetcarey_20170427.csv")
+
+
+```
+
+
+
+Extract the appropriate clinical variables.
+```{r}
+df <- data.frame(raw_data2$numpat,
+                     raw_data2$age,
+                     raw_data2$BMI,
+                     raw_data2$ACQ6,
+                     raw_data2$valeur_no_ex,
+                     raw_data2$valeur_no_alveo,
+                     raw_data2$VEMSp_1,
+                     raw_data2$CVFp_1,
+                     raw_data2$VEMS.CVF_1)
+    
+
+colnames(df) <- c("patient",
+                      "age",
+                      "bmi",
+                      "acq",
+                      "feno",
+                      "fano",
+                      "fev1",
+                      "fvc",
+                      "f.f")
+
+df$acq <- as.numeric(as.character(df$acq))
+
+head(df)
+
+```
+
+
+
+Describe the centrality and distribution measures.
+```{r}
+
+eff <- function(x) {length(which(!is.na(x)))}
+quartile_1 <- function(x) {quantile(x, probs = seq(0,1,0.25), na.rm = TRUE)[2]}
+quartile_3 <- function(x) {quantile(x, probs = seq(0,1,0.25), na.rm = TRUE)[4]}
+shap <- function(x) {as.numeric(shapiro.test(x)[2])}
+
+count<- sapply(df, eff)
+minimum <- sapply(df, min, na.rm = TRUE)
+maximum <- sapply(df, max, na.rm = TRUE)
+mean <- sapply(df, mean, na.rm = TRUE)
+st_d <- sapply(df, sd, na.rm = TRUE)
+median <- sapply(df, median, na.rm = TRUE)
+quartile_25p <- sapply(df, quartile_1)
+quartile_75p <- sapply(df, quartile_3)
+shapiro_p <- sapply(df, shap)
+
+options(scipen = 999)
+descriptive_total_pop <- data.frame(count, minimum, maximum, mean, 
+                     st_d, median, quartile_25p, quartile_75p, shapiro_p)
+
+rm(count, minimum, maximum, mean, st_d, median, quartile_25p, quartile_75p, shapiro_p)
+
+write.csv(descriptive_total_pop, file = "C:/Users/csuehs/Dropbox/SCANN'AIR_fractal_dimension/Submission2_Investigative_Radiology/stats-tables/scannair_fd_descriptive_data_total_population_clinical_variables.csv")
+
+write.csv2(descriptive_total_pop, file = "C:/Users/csuehs/Dropbox/SCANN'AIR_fractal_dimension/Submission2_Investigative_Radiology/stats-tables/scannair_fd_descriptive_data_total_population_clinical_variables_csv2.csv")
+
+head(descriptive_total_pop)
+
+```
+
+
